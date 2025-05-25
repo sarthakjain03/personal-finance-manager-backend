@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const validator = require("validator");
+const { validateLoginData, validateSignUpData } = require("./utils/validations")
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 
@@ -9,30 +11,12 @@ app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
+    validateSignUpData(req);
     const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      res.status(400).send({
-        success: false,
-        message: "Please provide all the required fields",
-      });
-    }
 
-    if (!validator.isEmail(email)) {
-      res.status(400).send({
-        success: false,
-        message: "Invalid email address",
-      });
-    }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.findOne({ email });
-    if (user) {
-      res.status(400).send({
-        success: false,
-        message: "User already Registered",
-      });
-    }
-
-    const newUser = new User({ name, email, password });
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
     res.send({
@@ -42,40 +26,29 @@ app.post("/signup", async (req, res) => {
   } catch (error) {
     res.status(400).send({
       success: false,
-      message: "Error creating user: " + error?.message,
+      message: "" + error?.message,
     });
   }
 });
 
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
+    validateLoginData(req);
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      res.status(400).send({
-        success: false,
-        message: "Please provide all the required fields",
-      });
-    }
-
-    if (!validator.isEmail(email)) {
-      res.status(400).send({
-        success: false,
-        message: "Invalid email address",
-      });
-    }
 
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(404).send({
+      res.status(400).send({
         success: false,
-        message: "User is not Registered",
+        message: "Invalid email or password",
       });
     }
-    if (user?.password !== password) {
-      res.status(401).send({
+
+    const isPasswordCorrect = await bcrypt.compare(password, user?.password);
+    if (!isPasswordCorrect) {
+      res.status(400).send({
         success: false,
-        message: "Invalid Password",
+        message: "Invalid email or password",
       });
     }
 
@@ -86,7 +59,7 @@ app.get("/login", async (req, res) => {
   } catch (error) {
     res.status(400).send({
       success: false,
-      message: "Error logging in: " + error?.message,
+      message: "" + error?.message,
     });
   }
 });
