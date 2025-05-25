@@ -1,7 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const validator = require("validator");
-const { validateLoginData, validateSignUpData } = require("./utils/validations")
+const {
+  validateLoginData,
+  validateSignUpData,
+} = require("./utils/validations");
 const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
@@ -42,20 +45,20 @@ app.post("/login", async (req, res) => {
         success: false,
         message: "Invalid email or password",
       });
+    } else {
+      const isPasswordCorrect = await bcrypt.compare(password, user?.password);
+      if (!isPasswordCorrect) {
+        res.status(400).send({
+          success: false,
+          message: "Invalid email or password",
+        });
+      } else {
+        res.send({
+          success: true,
+          message: "User Logged In Successfully",
+        });
+      }
     }
-
-    const isPasswordCorrect = await bcrypt.compare(password, user?.password);
-    if (!isPasswordCorrect) {
-      res.status(400).send({
-        success: false,
-        message: "Invalid email or password",
-      });
-    }
-
-    res.send({
-      success: true,
-      message: "User Logged In Successfully",
-    });
   } catch (error) {
     res.status(400).send({
       success: false,
