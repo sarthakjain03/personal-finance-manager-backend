@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // TODO: Add forgot password functionality
 
@@ -29,6 +31,21 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.methods.generateJWT = function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (password) {
+  const user = this;
+  const hashedPassword = user.password;
+  const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
+  return isPasswordCorrect;
+};
 
 const User = mongoose.model("User", userSchema);
 

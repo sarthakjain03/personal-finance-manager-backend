@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
-const validator = require("validator");
+const cookieParser = require("cookie-parser");
+
+const { userAuth } = require("./middlewares/auth");
 const {
   validateLoginData,
   validateSignUpData,
@@ -10,7 +12,9 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 
 const app = express();
+
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -45,23 +49,45 @@ app.post("/login", async (req, res) => {
         success: false,
         message: "Invalid email or password",
       });
-    } else {
-      const isPasswordCorrect = await bcrypt.compare(password, user?.password);
-      if (!isPasswordCorrect) {
-        res.status(400).send({
-          success: false,
-          message: "Invalid email or password",
-        });
-      } else {
-        res.send({
-          success: true,
-          message: "User Logged In Successfully",
-        });
-      }
+      return;
     }
+
+    const isPasswordCorrect = await user?.validatePassword(password);
+    if (!isPasswordCorrect) {
+      res.status(400).send({
+        success: false,
+        message: "Invalid email or password",
+      });
+      return;
+    }
+
+    const token = user.generateJWT();
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    res.send({
+      success: true,
+      message: "User Logged In Successfully",
+    });
   } catch (error) {
     res.status(400).send({
       success: false,
+      message: "" + error?.message,
+    });
+  }
+});
+
+app.get("/profile", userAuth, (req, res) => {
+  try {
+    res.send({
+      success: true,
+      message: "Profile fetched successfully",
+      user: req.user,
+    });
+  } catch (error) {
+    res.status(400).send({
+      status: false,
       message: "" + error?.message,
     });
   }
