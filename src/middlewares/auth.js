@@ -3,8 +3,8 @@ const User = require("../models/user");
 
 const userAuth = async (req, res, next) => {
   try {
-    const { token } = req.cookies;
-    if (!token) {
+    const { token, userToken } = req.cookies;
+    if (!token || !userToken) {
       res.status(401).send({
         status: false,
         message: "Unauthorized",
@@ -12,7 +12,7 @@ const userAuth = async (req, res, next) => {
       return;
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(userToken, process.env.JWT_SECRET);
     const { _id } = decodedToken;
 
     const user = await User.findById(_id);
