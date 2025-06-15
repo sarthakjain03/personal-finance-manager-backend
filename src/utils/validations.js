@@ -13,4 +13,21 @@ const validateLoginData = (req) => {
   }
 };
 
-module.exports = { validateLoginData };
+const validateNewTransactionData = (req) => {
+  const { description, category, transactionType, amount, date } = req.body;
+  const user = req.user;
+  if (!description || !category || !transactionType || !amount || !date) {
+    throw new Error("All fields are required");
+  }
+  if (amount <= 0) {
+    throw new Error("Amount must be greater than 0");
+  }
+  if (transactionType === "Expense" && user.currentBalance < amount) {
+    throw new Error("Insufficient balance");
+  }
+  if (transactionType !== "Income" && transactionType !== "Expense") {
+    throw new Error("Invalid transaction type");
+  }
+};
+
+module.exports = { validateLoginData, validateNewTransactionData };
