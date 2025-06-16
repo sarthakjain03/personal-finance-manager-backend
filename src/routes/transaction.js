@@ -9,6 +9,30 @@ const {
   validateEditTransactionData,
 } = require("../utils/validations");
 
+transactionRouter.get("/all", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const userTransactions = await Transaction.findOne({ userId: user._id });
+    if (!userTransactions) {
+      return res.json({
+        success: true,
+        message: "User has not added Transactions yet",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Transactions fetched successfully",
+      data: userTransactions.transactions,
+    });
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      message: "" + error?.message,
+    });
+  }
+});
+
 transactionRouter.post("/new", userAuth, async (req, res) => {
   try {
     validateNewTransactionData(req);
