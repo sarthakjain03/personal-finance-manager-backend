@@ -23,10 +23,38 @@ const validateNewTransactionData = (req) => {
     throw new Error("Amount must be greater than 0");
   }
   if (transactionType === "Expense" && user.currentBalance < amount) {
-    throw new Error("Insufficient balance");
+    throw new Error("Insufficient Balance");
   }
   if (transactionType !== "Income" && transactionType !== "Expense") {
-    throw new Error("Invalid transaction type");
+    throw new Error("Invalid Transaction Type");
+  }
+};
+
+const validateEditTransactionData = (req, oldTransaction) => {
+  const { description, category, transactionType, amount, date } = req.body;
+  const user = req.user;
+  if (!description && !category && !transactionType && !amount && !date) {
+    throw new Error("Nothing to Update");
+  }
+  if (amount !== undefined) {
+    if (amount <= 0) {
+      throw new Error("Amount must be greater than 0");
+    }
+    if (
+      (transactionType === "Expense" ||
+        (transactionType === undefined &&
+          oldTransaction.transactionType === "Expense")) &&
+      user.currentBalance < amount
+    ) {
+      throw new Error("Insufficient Balance");
+    }
+  }
+  if (
+    transactionType !== undefined &&
+    transactionType !== "Income" &&
+    transactionType !== "Expense"
+  ) {
+    throw new Error("Invalid Transaction Type");
   }
 };
 
