@@ -12,18 +12,16 @@ const {
 transactionRouter.get("/all", userAuth, async (req, res) => {
   try {
     const user = req.user;
+    let transactions = [];
     const userTransactions = await Transaction.findOne({ userId: user._id });
-    if (!userTransactions) {
-      return res.json({
-        success: true,
-        message: "User has not added Transactions yet",
-      });
+    if (userTransactions) {
+      transactions = userTransactions.transactions;
     }
 
     res.json({
       success: true,
       message: "Transactions fetched successfully",
-      data: userTransactions.transactions,
+      data: transactions,
     });
   } catch (error) {
     res.status(400).send({
