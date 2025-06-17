@@ -18,6 +18,21 @@ transactionRouter.get("/all", userAuth, async (req, res) => {
       transactions = userTransactions.transactions;
     }
 
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    let limit = req.query.limit ? parseInt(req.query.limit) : 20;
+    limit = limit > 20 ? 20 : limit;
+    const offset = (page - 1) * limit;
+
+    if (transactions.length > 0) {
+      if (transactions.length > offset + limit) {
+        transactions = transactions.slice(offset, offset + limit + 1);
+      } else if (transactions.length > offset) {
+        transactions = transactions.slice(offset);
+      } else {
+        transactions = [];
+      }
+    }
+
     res.json({
       success: true,
       message: "Transactions fetched successfully",

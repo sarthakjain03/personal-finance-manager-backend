@@ -58,4 +58,8 @@ const validateEditTransactionData = (req, oldTransaction) => {
   }
 };
 
-module.exports = { validateLoginData, validateNewTransactionData };
+module.exports = {
+  validateLoginData,
+  validateNewTransactionData,
+  validateEditTransactionData,
+};
