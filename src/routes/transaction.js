@@ -12,31 +12,19 @@ const {
 transactionRouter.get("/all", userAuth, async (req, res) => {
   try {
     const user = req.user;
-    let transactions = [];
-    const userTransactions = await Transaction.findOne({ userId: user._id });
-    if (userTransactions) {
-      transactions = userTransactions.transactions;
-    }
-
     const page = req.query.page ? parseInt(req.query.page) : 1;
     let limit = req.query.limit ? parseInt(req.query.limit) : 20;
     limit = limit > 20 ? 20 : limit;
     const offset = (page - 1) * limit;
 
-    if (transactions.length > 0) {
-      if (transactions.length > offset + limit) {
-        transactions = transactions.slice(offset, offset + limit + 1);
-      } else if (transactions.length > offset) {
-        transactions = transactions.slice(offset);
-      } else {
-        transactions = [];
-      }
-    }
+    const userTransactions = await Transaction.find({ userId: user._id })
+      .skip(offset)
+      .limit(limit);
 
     res.json({
       success: true,
       message: "Transactions fetched successfully",
-      data: transactions,
+      data: userTransactions,
     });
   } catch (error) {
     res.status(400).send({
@@ -60,31 +48,12 @@ transactionRouter.post("/new", userAuth, async (req, res) => {
       date,
     };
 
-    let data;
-    const userTransactions = await Transaction.findOne({ userId: user._id });
-    if (userTransactions) {
-      const updateUserTransactions = await Transaction.findOneAndUpdate(
-        {
-          userId: user._id,
-        },
-        {
-          $push: { transactions: newTransaction },
-        },
-        {
-          new: true,
-        }
-      );
+    const userNewTransaction = new Transaction({
+      userId: user._id,
+      ...newTransaction,
+    });
 
-      data = updateUserTransactions.transactions;
-    } else {
-      const firstUserTransaction = new Transaction({
-        userId: user._id,
-        transactions: [{ ...newTransaction }],
-      });
-
-      const newUserEntry = await firstUserTransaction.save();
-      data = newUserEntry.transactions;
-    }
+    await userNewTransaction.save();
 
     const balanceUpdate = transactionType === "Income" ? amount : -amount;
     const updatedUser = await User.findOneAndUpdate(
@@ -101,7 +70,6 @@ transactionRouter.post("/new", userAuth, async (req, res) => {
       success: true,
       message: "Transaction added successfully",
       data: {
-        transactions: data,
         currentBalance: updatedUser.currentBalance,
       },
     });
@@ -118,15 +86,7 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
     const transactionId = req.params.id;
     const user = req.user;
 
-    const userTransactions = await Transaction.findOne({ userId: user._id });
-    if (!userTransactions) {
-      return res.status(404).json({
-        success: false,
-        message: "User transactions not found",
-      });
-    }
-
-    const transaction = userTransactions.transactions.id(transactionId);
+    const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
       return res.status(404).json({
         success: false,
@@ -147,7 +107,7 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
     if (date !== undefined) transaction.date = date;
     if (amount !== undefined) transaction.amount = amount;
 
-    await userTransactions.save();
+    await transaction.save();
 
     let changeInAmount = 0;
     const newAmount = transaction.amount;
@@ -175,7 +135,6 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
       success: true,
       message: "Transaction updated successfully",
       data: {
-        // transactions: userTransactions.transactions,
         currentBalance: updatedUser.currentBalance,
       },
     });
@@ -192,15 +151,7 @@ transactionRouter.delete("/:id", userAuth, async (req, res) => {
     const transactionId = req.params.id;
     const user = req.user;
 
-    const userTransactions = await Transaction.findOne({ userId: user._id });
-    if (!userTransactions) {
-      return res.status(404).json({
-        success: false,
-        message: "User transactions not found",
-      });
-    }
-
-    const transaction = userTransactions.transactions.id(transactionId);
+    const transaction = await Transaction.findById(transactionId);
     if (!transaction) {
       return res.status(404).json({
         success: false,
@@ -226,8 +177,7 @@ transactionRouter.delete("/:id", userAuth, async (req, res) => {
       }
     ).select("currentBalance");
 
-    transaction.deleteOne();
-    await userTransactions.save();
+    await Transaction.deleteOne({ _id: transactionId });
 
     res.json({
       success: true,

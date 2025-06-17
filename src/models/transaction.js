@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
-const singleTransactionSchema = new mongoose.Schema({
+const transactionSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   description: {
     type: String,
     required: true,
@@ -24,17 +29,6 @@ const singleTransactionSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true,
-  },
-});
-
-const transactionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  transactions: {
-    type: [singleTransactionSchema],
   },
 });
 
