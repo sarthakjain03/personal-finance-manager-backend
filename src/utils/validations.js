@@ -19,6 +19,9 @@ const validateNewTransactionData = (req) => {
   if (!description || !category || !transactionType || !amount || !date) {
     throw new Error("All fields are required");
   }
+  if (!validator.isNumeric(amount)) {
+    throw new Error("Amount must be a number");
+  }
   if (amount <= 0) {
     throw new Error("Amount must be greater than 0");
   }
@@ -27,6 +30,9 @@ const validateNewTransactionData = (req) => {
   }
   if (transactionType !== "Income" && transactionType !== "Expense") {
     throw new Error("Invalid Transaction Type");
+  }
+  if (!validator.isDate(date)) {
+    throw new Error("Date must be a date");
   }
 };
 
@@ -37,6 +43,9 @@ const validateEditTransactionData = (req, oldTransaction) => {
     throw new Error("Nothing to Update");
   }
   if (amount !== undefined) {
+    if (!validator.isNumeric(amount)) {
+      throw new Error("Amount must be a number");
+    }
     if (amount <= 0) {
       throw new Error("Amount must be greater than 0");
     }
@@ -56,10 +65,111 @@ const validateEditTransactionData = (req, oldTransaction) => {
   ) {
     throw new Error("Invalid Transaction Type");
   }
+  if (date !== undefined && !validator.isDate(date)) {
+    throw new Error("Date must be a date");
+  }
+};
+
+const validatePageAndLimit = (req) => {
+  if (!req.query.page || !req.query.limit) {
+    throw new Error("Page and Limit are required as queries");
+  }
+  if (isNaN(parseInt(req.query.page)) || isNaN(parseInt(req.query.limit))) {
+    throw new Error("Page and Limit must be numbers");
+  }
+  if (parseInt(req.query.page) <= 0 || parseInt(req.query.limit) <= 0) {
+    throw new Error("Page and Limit must be greater than 0");
+  }
+};
+
+const validateNewGoalData = (req) => {
+  const { title, description, category, targetAmount, deadline } = req.body;
+  if (!title || !description || !category || !targetAmount || !deadline) {
+    throw new Error("All fields are required");
+  }
+  if (title.length < 3 || title.length > 50) {
+    throw new Error("Title must be between 3 and 50 characters");
+  }
+  if (description.length > 250) {
+    throw new Error("Description must be less than 250 characters");
+  }
+  if (category.length < 2 || category.length > 30) {
+    throw new Error("Category must be between 2 and 30 characters");
+  }
+  if (!validator.isNumeric(targetAmount)) {
+    throw new Error("Target Amount must be a number");
+  }
+  if (targetAmount <= 0) {
+    throw new Error("Target Amount must be greater than 0");
+  }
+  if (!validator.isDate(deadline)) {
+    throw new Error("Deadline must be a date");
+  }
+  if (deadline <= new Date()) {
+    throw new Error("Deadline must be greater than current date");
+  }
+};
+
+const validateEditGoalData = (req) => {
+  const {
+    title,
+    description,
+    category,
+    currentAmount,
+    targetAmount,
+    deadline,
+  } = req.body;
+
+  if (
+    !title &&
+    !description &&
+    !category &&
+    !currentAmount &&
+    !targetAmount &&
+    !deadline
+  ) {
+    throw new Error("Nothing to Update");
+  }
+  if ((title !== undefined && title.length < 3) || title.length > 50) {
+    throw new Error("Title must be between 3 and 50 characters");
+  }
+  if (description !== undefined && description.length > 250) {
+    throw new Error("Description must be less than 250 characters");
+  }
+  if ((category !== undefined && category.length < 2) || category.length > 30) {
+    throw new Error("Category must be between 2 and 30 characters");
+  }
+  if (currentAmount !== undefined) {
+    if (!validator.isNumeric(currentAmount))
+      throw new Error("Current Amount must be a number");
+    if (currentAmount <= 0)
+      throw new Error("Current Amount must be greater than 0");
+    if (currentAmount > targetAmount)
+      throw new Error("Current Amount must be less than Target Amount");
+  }
+  if (targetAmount !== undefined) {
+    if (!validator.isNumeric(targetAmount))
+      throw new Error("Target Amount must be a number");
+    if (targetAmount <= 0)
+      throw new Error("Target Amount must be greater than 0");
+    if (currentAmount !== undefined && targetAmount < currentAmount)
+      throw new Error(
+        "Target Amount must be more than or equal to Current Amount"
+      );
+  }
+  if (deadline !== undefined && !validator.isDate(deadline)) {
+    throw new Error("Deadline must be a date");
+  }
+  if (deadline !== undefined && deadline <= new Date()) {
+    throw new Error("Deadline must be greater than current date");
+  }
 };
 
 module.exports = {
   validateLoginData,
   validateNewTransactionData,
   validateEditTransactionData,
+  validatePageAndLimit,
+  validateNewGoalData,
+  validateEditGoalData,
 };

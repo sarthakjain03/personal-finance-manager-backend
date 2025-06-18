@@ -7,10 +7,13 @@ const User = require("../models/user");
 const {
   validateNewTransactionData,
   validateEditTransactionData,
+  validatePageAndLimit,
 } = require("../utils/validations");
 
 transactionRouter.get("/all", userAuth, async (req, res) => {
   try {
+    validatePageAndLimit(req);
+
     const user = req.user;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     let limit = req.query.limit ? parseInt(req.query.limit) : 20;
@@ -48,6 +51,13 @@ transactionRouter.post("/new", userAuth, async (req, res) => {
       date,
     };
 
+    if (transactionType === "Expense" && user.currentBalance < amount) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient Balance",
+      });
+    }
+
     const userNewTransaction = new Transaction({
       userId: user._id,
       ...newTransaction,
@@ -63,7 +73,7 @@ transactionRouter.post("/new", userAuth, async (req, res) => {
       {
         $inc: { currentBalance: balanceUpdate },
       },
-      { new: true }
+      { new: true, runValidators: true }
     ).select("currentBalance");
 
     res.json({
@@ -107,6 +117,16 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
     if (date !== undefined) transaction.date = date;
     if (amount !== undefined) transaction.amount = amount;
 
+    if (
+      transaction.transactionType === "Expense" &&
+      user.currentBalance < transaction.amount
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient Balance",
+      });
+    }
+
     await transaction.save();
 
     let changeInAmount = 0;
@@ -126,9 +146,7 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
       {
         $inc: { currentBalance: changeInAmount },
       },
-      {
-        new: true,
-      }
+      { new: true, runValidators: true }
     ).select("currentBalance");
 
     res.json({
@@ -146,7 +164,7 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
   }
 });
 
-transactionRouter.delete("/:id", userAuth, async (req, res) => {
+transactionRouter.delete("/delete/:id", userAuth, async (req, res) => {
   try {
     const transactionId = req.params.id;
     const user = req.user;
