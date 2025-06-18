@@ -68,8 +68,6 @@ goalRouter.post("/new", userAuth, async (req, res) => {
 
 goalRouter.patch("/edit/:id", userAuth, async (req, res) => {
   try {
-    validateEditGoalData(req);
-
     const goalId = req.params.id;
 
     const goal = await Goal.findById(goalId);
@@ -79,6 +77,8 @@ goalRouter.patch("/edit/:id", userAuth, async (req, res) => {
         message: "Goal not found",
       });
     }
+
+    validateEditGoalData(req, goal);
 
     const {
       title,

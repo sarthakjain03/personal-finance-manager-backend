@@ -1,4 +1,5 @@
 const validator = require("validator");
+const { TransactionTypeEnums, CategoryEnums } = require("./enums");
 
 const validateLoginData = (req) => {
   const { email, name, accessToken, expiresIn } = req.body;
@@ -25,6 +26,12 @@ const validateNewTransactionData = (req) => {
   if (amount <= 0) {
     throw new Error("Amount must be greater than 0");
   }
+  if (!CategoryEnums.includes(category)) {
+    throw new Error("Invalid Category");
+  }
+  if (!TransactionTypeEnums.includes(transactionType)) {
+    throw new Error("Invalid Transaction Type");
+  }
   if (transactionType === "Expense" && user.currentBalance < amount) {
     throw new Error("Insufficient Balance");
   }
@@ -41,6 +48,15 @@ const validateEditTransactionData = (req, oldTransaction) => {
   const user = req.user;
   if (!description && !category && !transactionType && !amount && !date) {
     throw new Error("Nothing to Update");
+  }
+  if (category !== undefined && !CategoryEnums.includes(category)) {
+    throw new Error("Invalid Category");
+  }
+  if (
+    transactionType !== undefined &&
+    !TransactionTypeEnums.includes(transactionType)
+  ) {
+    throw new Error("Invalid Transaction Type");
   }
   if (amount !== undefined) {
     if (!validator.isNumeric(amount)) {
@@ -110,7 +126,7 @@ const validateNewGoalData = (req) => {
   }
 };
 
-const validateEditGoalData = (req) => {
+const validateEditGoalData = (req, oldGoal) => {
   const {
     title,
     description,
@@ -136,7 +152,7 @@ const validateEditGoalData = (req) => {
   if (description !== undefined && description.length > 250) {
     throw new Error("Description must be less than 250 characters");
   }
-  if ((category !== undefined && category.length < 2) || category.length > 30) {
+  if (category !== undefined && (category.length < 2 || category.length > 30)) {
     throw new Error("Category must be between 2 and 30 characters");
   }
   if (currentAmount !== undefined) {
@@ -144,7 +160,10 @@ const validateEditGoalData = (req) => {
       throw new Error("Current Amount must be a number");
     if (currentAmount <= 0)
       throw new Error("Current Amount must be greater than 0");
-    if (currentAmount > targetAmount)
+    if (
+      (targetAmount !== undefined && currentAmount > targetAmount) ||
+      currentAmount > oldGoal.targetAmount
+    )
       throw new Error("Current Amount must be less than Target Amount");
   }
   if (targetAmount !== undefined) {
@@ -152,16 +171,18 @@ const validateEditGoalData = (req) => {
       throw new Error("Target Amount must be a number");
     if (targetAmount <= 0)
       throw new Error("Target Amount must be greater than 0");
-    if (currentAmount !== undefined && targetAmount < currentAmount)
+    if (
+      (currentAmount !== undefined && targetAmount < currentAmount) ||
+      targetAmount < oldGoal.currentAmount
+    )
       throw new Error(
         "Target Amount must be more than or equal to Current Amount"
       );
   }
-  if (deadline !== undefined && !validator.isDate(deadline)) {
-    throw new Error("Deadline must be a date");
-  }
-  if (deadline !== undefined && deadline <= new Date()) {
-    throw new Error("Deadline must be greater than current date");
+  if (deadline !== undefined) {
+    if (!validator.isDate(deadline)) throw new Error("Deadline must be a date");
+    if (deadline <= new Date())
+      throw new Error("Deadline must be greater than current date");
   }
 };
 
