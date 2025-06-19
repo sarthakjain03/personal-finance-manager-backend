@@ -113,9 +113,10 @@ goalRouter.patch("/edit/:id", userAuth, async (req, res) => {
 
 goalRouter.delete("/delete/:id", userAuth, async (req, res) => {
   try {
+    const user = req.user;
     const goalId = req.params.id;
 
-    const goal = await Goal.findById(goalId);
+    const goal = await Goal.findOne({ _id: goalId, userId: user._id });
     if (!goal) {
       return res.status(404).json({
         success: false,
@@ -123,7 +124,7 @@ goalRouter.delete("/delete/:id", userAuth, async (req, res) => {
       });
     }
 
-    await Goal.findByIdAndDelete(goalId);
+    await Goal.deleteOne({ _id: goalId, userId: user._id });
 
     res.json({
       success: true,

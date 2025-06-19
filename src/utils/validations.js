@@ -186,6 +186,45 @@ const validateEditGoalData = (req, oldGoal) => {
   }
 };
 
+const validateNewBudgetData = (req) => {
+  const { category, budgetAmount } = req.body;
+  if (!category || !budgetAmount) {
+    throw new Error("All fields are required");
+  }
+  if (!CategoryEnums.includes(category)) {
+    throw new Error("Invalid Category");
+  }
+  if (!validator.isNumeric(budgetAmount)) {
+    throw new Error("Budget Amount must be a number");
+  }
+  if (budgetAmount <= 0) {
+    throw new Error("Budget Amount must be greater than 0");
+  }
+};
+
+const validateEditBudgetData = (req, oldBudget) => {
+  const { category, budgetAmount } = req.body;
+  if (!category && !budgetAmount) {
+    throw new Error("Nothing to Update");
+  }
+  if (category !== undefined && !CategoryEnums.includes(category)) {
+    throw new Error("Invalid Category");
+  }
+  if (budgetAmount !== undefined) {
+    if (!validator.isNumeric(budgetAmount)) {
+      throw new Error("Budget Amount must be a number");
+    }
+    if (budgetAmount <= 0) {
+      throw new Error("Budget Amount must be greater than 0");
+    }
+    if (
+      budgetAmount < oldBudget.budgetAmount &&
+      budgetAmount > oldBudget.remainingAmount
+    )
+      throw new Error("Budget Amount must be less than Remaining Amount");
+  }
+};
+
 module.exports = {
   validateLoginData,
   validateNewTransactionData,
@@ -193,4 +232,6 @@ module.exports = {
   validatePageAndLimit,
   validateNewGoalData,
   validateEditGoalData,
+  validateNewBudgetData,
+  validateEditBudgetData,
 };

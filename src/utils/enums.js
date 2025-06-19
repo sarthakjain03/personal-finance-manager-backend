@@ -6,6 +6,8 @@ const CategoryEnums = [
   "Health & Fitness",
   "Bills & Utilities",
   "Investments",
+  "Personal Care",
+  "Housing",
 ];
 
 const TransactionTypeEnums = ["Income", "Expense"];

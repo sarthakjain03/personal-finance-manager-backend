@@ -169,7 +169,10 @@ transactionRouter.delete("/delete/:id", userAuth, async (req, res) => {
     const transactionId = req.params.id;
     const user = req.user;
 
-    const transaction = await Transaction.findById(transactionId);
+    const transaction = await Transaction.findOne({
+      _id: transactionId,
+      userId: user._id,
+    });
     if (!transaction) {
       return res.status(404).json({
         success: false,
@@ -195,7 +198,7 @@ transactionRouter.delete("/delete/:id", userAuth, async (req, res) => {
       }
     ).select("currentBalance");
 
-    await Transaction.deleteOne({ _id: transactionId });
+    await Transaction.deleteOne({ _id: transactionId, userId: user._id });
 
     res.json({
       success: true,
