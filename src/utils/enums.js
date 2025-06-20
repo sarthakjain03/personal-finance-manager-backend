@@ -12,4 +12,19 @@ const CategoryEnums = [
 
 const TransactionTypeEnums = ["Income", "Expense"];
 
-module.exports = { CategoryEnums, TransactionTypeEnums };
+const Months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+module.exports = { CategoryEnums, TransactionTypeEnums, Months };

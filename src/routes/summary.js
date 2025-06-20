@@ -2,7 +2,7 @@ const express = require("express");
 const summaryRouter = express.Router();
 
 const { userAuth } = require("../middlewares/auth");
-const MonthlyCards = require("../models/summary/monthlyCards");
+const MonthlyCards = require("../models/monthlyCards");
 
 summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
   try {
