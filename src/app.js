@@ -7,6 +7,7 @@ const authRouter = require("./routes/auth");
 const transactionRouter = require("./routes/transaction");
 const goalRouter = require("./routes/goal");
 const budgetRouter = require("./routes/budget");
+const summaryRouter = require("./routes/summary");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/summary", summaryRouter);
 app.use("/transaction", transactionRouter);
 app.use("/goal", goalRouter);
 app.use("/budget", budgetRouter);

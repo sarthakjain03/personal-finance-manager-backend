@@ -175,3 +175,5 @@ budgetRouter.delete("/delete/:id", userAuth, async (req, res) => {
     });
   }
 });
+
+module.exports = budgetRouter;
