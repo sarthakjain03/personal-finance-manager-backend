@@ -1,4 +1,4 @@
-const CategoryEnums = [
+const Categories = [
   "Food & Dining",
   "Travel",
   "Entertainment",
@@ -10,7 +10,7 @@ const CategoryEnums = [
   "Housing",
 ];
 
-const TransactionTypeEnums = ["Income", "Expense"];
+const TransactionTypes = ["Income", "Expense"];
 
 const Months = [
   "January",
@@ -27,4 +27,6 @@ const Months = [
   "December",
 ];
 
-module.exports = { CategoryEnums, TransactionTypeEnums, Months };
+const Timelines = ["month", "year"];
+
+module.exports = { Categories, TransactionTypes, Months, Timelines };

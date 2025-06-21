@@ -3,7 +3,10 @@ const summaryRouter = express.Router();
 
 const { userAuth } = require("../middlewares/auth");
 const Transaction = require("../models/transaction");
-const { getPercentageChange } = require("../utils/helpers");
+const { getPercentageChange, getTrendsChartData } = require("../utils/helpers");
+const { validateTrendData } = require("../utils/validations");
+
+const REQUIRED_TXN_DATA = "transactionType amount date";
 
 const getIncrementalAmount = (transaction, monthType) => {
   const subtractMonth = monthType === "current" ? 0 : 1;
@@ -22,7 +25,7 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
 
     const userTransactions = await Transaction.find({
       userId: user._id,
-    }).select("transactionType amount date");
+    }).select(REQUIRED_TXN_DATA);
 
     userTransactions.forEach((transaction) => {
       const currentMonthAmount = getIncrementalAmount(transaction, "current");
@@ -58,8 +61,27 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
   }
 });
 
-summaryRouter.get("/", userAuth, async (req, res) => {
+summaryRouter.get("/trend/:type", userAuth, async (req, res) => {
   try {
+    const user = req.user;
+
+    validateTrendData(req);
+
+    const type = req.params.type?.[0].toUpperCase() + req.params.type?.slice(1);
+    const timeline = req.query.timeline;
+
+    const userTransactions = await Transaction.find({
+      userId: user._id,
+      transactionType: type,
+    }).select(REQUIRED_TXN_DATA);
+
+    const trendsChartData = getTrendsChartData(userTransactions, timeline);
+
+    res.json({
+      success: true,
+      message: "Trends data fetched successfully",
+      data: trendsChartData,
+    });
   } catch (error) {
     res.status(400).json({
       success: false,

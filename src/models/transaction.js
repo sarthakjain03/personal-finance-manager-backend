@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const { TransactionTypeEnums, CategoryEnums } = require("../utils/enums");
+const { TransactionTypes, Categories } = require("../utils/constants");
 
 const transactionSchema = new mongoose.Schema({
   userId: {
@@ -17,12 +17,12 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    enum: CategoryEnums,
+    enum: Categories,
   },
   transactionType: {
     type: String,
     required: true,
-    enum: TransactionTypeEnums,
+    enum: TransactionTypes,
   },
   amount: {
     type: Number,

@@ -1,5 +1,5 @@
 const validator = require("validator");
-const { TransactionTypeEnums, CategoryEnums } = require("./enums");
+const { TransactionTypes, Categories, Timelines } = require("./enums");
 
 const validateLoginData = (req) => {
   const { email, name, accessToken, expiresIn } = req.body;
@@ -26,10 +26,10 @@ const validateNewTransactionData = (req) => {
   if (amount <= 0) {
     throw new Error("Amount must be greater than 0");
   }
-  if (!CategoryEnums.includes(category)) {
+  if (!Categories.includes(category)) {
     throw new Error("Invalid Category");
   }
-  if (!TransactionTypeEnums.includes(transactionType)) {
+  if (!TransactionTypes.includes(transactionType)) {
     throw new Error("Invalid Transaction Type");
   }
   if (transactionType === "Expense" && user.currentBalance < amount) {
@@ -49,12 +49,12 @@ const validateEditTransactionData = (req, oldTransaction) => {
   if (!description && !category && !transactionType && !amount && !date) {
     throw new Error("Nothing to Update");
   }
-  if (category !== undefined && !CategoryEnums.includes(category)) {
+  if (category !== undefined && !Categories.includes(category)) {
     throw new Error("Invalid Category");
   }
   if (
     transactionType !== undefined &&
-    !TransactionTypeEnums.includes(transactionType)
+    !TransactionTypes.includes(transactionType)
   ) {
     throw new Error("Invalid Transaction Type");
   }
@@ -191,7 +191,7 @@ const validateNewBudgetData = (req) => {
   if (!category || !budgetAmount) {
     throw new Error("All fields are required");
   }
-  if (!CategoryEnums.includes(category)) {
+  if (!Categories.includes(category)) {
     throw new Error("Invalid Category");
   }
   if (!validator.isNumeric(budgetAmount)) {
@@ -207,7 +207,7 @@ const validateEditBudgetData = (req, oldBudget) => {
   if (!category && !budgetAmount) {
     throw new Error("Nothing to Update");
   }
-  if (category !== undefined && !CategoryEnums.includes(category)) {
+  if (category !== undefined && !Categories.includes(category)) {
     throw new Error("Invalid Category");
   }
   if (budgetAmount !== undefined) {
@@ -225,6 +225,25 @@ const validateEditBudgetData = (req, oldBudget) => {
   }
 };
 
+const validateTrendData = (req) => {
+  const { type } = req.params;
+  const { timeline } = req.query;
+  if (!type || !timeline) {
+    throw new Error(
+      "Type is required as param and timeline is required as query"
+    );
+  }
+
+  const transactionType = type[0].toUpperCase() + type.slice(1);
+  if (!TransactionTypes.includes(transactionType)) {
+    throw new Error("Invalid transaction type");
+  }
+
+  if (!Timelines.includes(timeline)) {
+    throw new Error("Invalid timeline");
+  }
+};
+
 module.exports = {
   validateLoginData,
   validateNewTransactionData,
@@ -234,4 +253,5 @@ module.exports = {
   validateEditGoalData,
   validateNewBudgetData,
   validateEditBudgetData,
+  validateTrendData,
 };
