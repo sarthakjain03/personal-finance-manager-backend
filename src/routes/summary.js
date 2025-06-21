@@ -3,18 +3,13 @@ const summaryRouter = express.Router();
 
 const { userAuth } = require("../middlewares/auth");
 const Transaction = require("../models/transaction");
+const Budget = require("../models/budget");
 const { getPercentageChange, getTrendsChartData } = require("../utils/helpers");
-const { validateTrendData } = require("../utils/validations");
-
-const REQUIRED_TXN_DATA = "transactionType amount date";
-
-const getIncrementalAmount = (transaction, monthType) => {
-  const subtractMonth = monthType === "current" ? 0 : 1;
-  const requiredMonth = new Date().getMonth() - subtractMonth;
-  const month = transaction.date.getMonth();
-
-  return month === requiredMonth ? transaction.amount : 0;
-};
+const {
+  validateTrendData,
+  validateCategoryWiseExpensesData,
+} = require("../utils/validations");
+const { Timelines } = require("../utils/constants");
 
 summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
   try {
@@ -23,19 +18,51 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
     const incomeStats = { ...cardData };
     const spendingStats = { ...cardData };
 
-    const userTransactions = await Transaction.find({
-      userId: user._id,
-    }).select(REQUIRED_TXN_DATA);
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
-    userTransactions.forEach((transaction) => {
-      const currentMonthAmount = getIncrementalAmount(transaction, "current");
-      const lastMonthAmount = getIncrementalAmount(transaction, "last");
-      if (transaction.transactionType === "Income") {
-        incomeStats.currentMonth += currentMonthAmount;
-        incomeStats.lastMonth += lastMonthAmount;
+    const userStats = await Transaction.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          date: { $gte: startOfLastMonth },
+        },
+        $project: {
+          amount: 1,
+          transactionType: 1,
+          isCurrentMonth: { $gte: ["$date", startOfCurrentMonth] },
+          isLastMonth: {
+            $and: [
+              { $gte: ["$date", startOfLastMonth] },
+              { $lt: ["$date", endOfLastMonth] },
+            ],
+          },
+        },
+        $group: {
+          _id: "$transactionType",
+          currentMonth: {
+            $sum: {
+              $cond: ["$isCurrentMonth", "$amount", 0],
+            },
+          },
+          lastMonth: {
+            $sum: {
+              $cond: ["$isLastMonth", "$amount", 0],
+            },
+          },
+        },
+      },
+    ]);
+
+    userStats.forEach((item) => {
+      if (item._id === "Income") {
+        incomeStats.currentMonth = item.currentMonth;
+        incomeStats.lastMonth = item.lastMonth;
       } else {
-        spendingStats.currentMonth += currentMonthAmount;
-        spendingStats.lastMonth += lastMonthAmount;
+        spendingStats.currentMonth = item.currentMonth;
+        spendingStats.lastMonth = item.lastMonth;
       }
     });
 
@@ -63,17 +90,17 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
 
 summaryRouter.get("/trend/:type", userAuth, async (req, res) => {
   try {
-    const user = req.user;
-
     validateTrendData(req);
 
-    const type = req.params.type?.[0].toUpperCase() + req.params.type?.slice(1);
+    const user = req.user;
+
+    const type = req.params.type[0].toUpperCase() + req.params.type.slice(1);
     const timeline = req.query.timeline;
 
     const userTransactions = await Transaction.find({
       userId: user._id,
       transactionType: type,
-    }).select(REQUIRED_TXN_DATA);
+    }).select("transactionType amount date");
 
     const trendsChartData = getTrendsChartData(userTransactions, timeline);
 
@@ -90,8 +117,45 @@ summaryRouter.get("/trend/:type", userAuth, async (req, res) => {
   }
 });
 
-summaryRouter.get("/", userAuth, async (req, res) => {
+summaryRouter.get("/category-wise-expenses", userAuth, async (req, res) => {
   try {
+    validateCategoryWiseExpensesData(req);
+
+    const user = req.user;
+    const timeline = req.query.timeline;
+
+    const startYear = new Date().getFullYear();
+    const endYear = timeline === Timelines[0] ? startYear : startYear + 1;
+    const startMonth = new Date().getMonth();
+    const endMonth = timeline === Timelines[0] ? startMonth + 1 : 0;
+
+    const startDate = new Date(startYear, startMonth, 1);
+    const endDate = new Date(endYear, endMonth, 1);
+
+    const categoryWiseExpensesData = await Transaction.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          transactionType: "Expense",
+          date: { $gte: startDate, $lt: endDate },
+        },
+        $group: {
+          _id: "$category",
+          totalAmount: { $sum: "$amount" },
+        },
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalAmount: 1,
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      message: "Category wise expenses data fetched successfully",
+      data: categoryWiseExpensesData,
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -100,18 +164,19 @@ summaryRouter.get("/", userAuth, async (req, res) => {
   }
 });
 
-summaryRouter.get("/", userAuth, async (req, res) => {
+summaryRouter.get("/budget", userAuth, async (req, res) => {
   try {
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: "" + error.message,
-    });
-  }
-});
+    const user = req.user;
 
-summaryRouter.get("/", userAuth, async (req, res) => {
-  try {
+    const userBudgets = await Budget.find({ userId: user._id }).select(
+      "category spentAmount budgetAmount"
+    );
+
+    res.json({
+      success: true,
+      message: "Budget summary fetched successfully",
+      data: userBudgets,
+    });
   } catch (error) {
     res.status(400).json({
       success: false,

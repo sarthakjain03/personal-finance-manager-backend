@@ -244,6 +244,16 @@ const validateTrendData = (req) => {
   }
 };
 
+const validateCategoryWiseExpensesData = (req) => {
+  const { timeline } = req.query;
+  if (!timeline) {
+    throw new Error("Timeline is required as query");
+  }
+  if (!Timelines.includes(timeline)) {
+    throw new Error("Invalid timeline");
+  }
+};
+
 module.exports = {
   validateLoginData,
   validateNewTransactionData,
@@ -254,4 +264,5 @@ module.exports = {
   validateNewBudgetData,
   validateEditBudgetData,
   validateTrendData,
+  validateCategoryWiseExpensesData,
 };

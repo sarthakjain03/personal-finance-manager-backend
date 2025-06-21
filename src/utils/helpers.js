@@ -59,4 +59,7 @@ const getTrendsChartData = (data, timeline) => {
   return reqData;
 };
 
-module.exports = { getPercentageChange, getTrendsChartData };
+module.exports = {
+  getPercentageChange,
+  getTrendsChartData,
+};
