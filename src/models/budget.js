@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Categories } = require("../utils/enums");
+const { Categories } = require("../utils/constants");
 
 const budgetSchema = new mongoose.Schema(
   {

@@ -1,5 +1,5 @@
 const validator = require("validator");
-const { TransactionTypes, Categories, Timelines } = require("./enums");
+const { TransactionTypes, Categories, Timelines } = require("./constants");
 
 const validateLoginData = (req) => {
   const { email, name, expiresIn } = req.body;
