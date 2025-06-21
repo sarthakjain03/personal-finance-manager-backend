@@ -197,8 +197,8 @@ const validateNewBudgetData = (req) => {
   if (!validator.isNumeric(budgetAmount)) {
     throw new Error("Budget Amount must be a number");
   }
-  if (budgetAmount <= 0) {
-    throw new Error("Budget Amount must be greater than 0");
+  if (budgetAmount <= 100) {
+    throw new Error("Budget Amount must be greater than 100");
   }
 };
 
@@ -214,8 +214,8 @@ const validateEditBudgetData = (req, oldBudget) => {
     if (!validator.isNumeric(budgetAmount)) {
       throw new Error("Budget Amount must be a number");
     }
-    if (budgetAmount <= 0) {
-      throw new Error("Budget Amount must be greater than 0");
+    if (budgetAmount <= 100) {
+      throw new Error("Budget Amount must be greater than 100");
     }
     if (
       budgetAmount < oldBudget.budgetAmount &&

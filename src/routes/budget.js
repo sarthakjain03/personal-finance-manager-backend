@@ -7,6 +7,7 @@ const {
   validateNewBudgetData,
   validateEditBudgetData,
 } = require("../utils/validations");
+const Transaction = require("../models/transaction");
 
 const updateTotalsAndSend = async (user, res, budget, successMessage) => {
   let totalBudget = 0;
@@ -88,11 +89,32 @@ budgetRouter.post("/new", userAuth, async (req, res) => {
       });
     }
 
+    const userSpends = await Transaction.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          category,
+          transactionType: "Expense",
+        },
+        $group: {
+          _id: null,
+          totalSpent: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    const spentAmount = userSpends[0].totalSpent || 0;
+    const percentageSpent = parseFloat(
+      ((spentAmount / budgetAmount) * 100).toFixed(2)
+    );
+
     const newBudget = new Budget({
       userId: user._id,
       category,
       budgetAmount,
-      remainingAmount: budgetAmount,
+      spentAmount,
+      remainingAmount: budgetAmount - spentAmount,
+      spentPercentage: percentageSpent,
     });
 
     await newBudget.save();
@@ -131,7 +153,9 @@ budgetRouter.patch("/edit/:id", userAuth, async (req, res) => {
     if (category !== undefined) budget.category = category;
     if (budgetAmount !== undefined) {
       budget.budgetAmount = budgetAmount;
-      const spentPercentage = (budget.spentAmount / budgetAmount) * 100;
+      const spentPercentage = parseFloat(
+        ((budget.spentAmount / budgetAmount) * 100).toFixed(2)
+      );
       budget.spentPercentage = spentPercentage;
       budget.remainingAmount = budgetAmount - budget.spentAmount;
     }
@@ -168,6 +192,41 @@ budgetRouter.delete("/delete/:id", userAuth, async (req, res) => {
       undefined,
       "Budget deleted successfully"
     );
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "" + error.message,
+    });
+  }
+});
+
+budgetRouter.patch("/reset", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    const now = new Date();
+    const newMonthStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    await Budget.updateMany(
+      { userId: user._id, createdAt: { $lt: newMonthStart } },
+      [
+        {
+          $set: {
+            spentAmount: 0,
+            spentPercentage: 0,
+            remainingAmount: "$budgetAmount",
+          },
+        },
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "Budgets reset successful",
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
