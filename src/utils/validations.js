@@ -3,12 +3,12 @@ const { TransactionTypes, Categories, Timelines } = require("./constants");
 
 const validateLoginData = (req) => {
   const { email, name, expiresIn } = req.body;
-  const { Authorization } = req.headers;
-  if (!Authorization) {
+  const { authorization } = req.headers;
+  if (!authorization) {
     throw new Error("Authorization header is required");
   }
-  const accessToken = Authorization.includes("Bearer")
-    ? Authorization.split(" ")[1]
+  const accessToken = authorization.includes("Bearer")
+    ? authorization.split(" ")[1]
     : null;
   if (!accessToken) {
     throw new Error("Access Token is required");
