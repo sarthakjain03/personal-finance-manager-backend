@@ -2,7 +2,17 @@ const validator = require("validator");
 const { TransactionTypes, Categories, Timelines } = require("./enums");
 
 const validateLoginData = (req) => {
-  const { email, name, accessToken, expiresIn } = req.body;
+  const { email, name, expiresIn } = req.body;
+  const { Authorization } = req.headers;
+  if (!Authorization) {
+    throw new Error("Authorization header is required");
+  }
+  const accessToken = Authorization.includes("Bearer")
+    ? Authorization.split(" ")[1]
+    : null;
+  if (!accessToken) {
+    throw new Error("Access Token is required");
+  }
   if (!email || !name || !accessToken || !expiresIn) {
     throw new Error("All fields are required");
   }

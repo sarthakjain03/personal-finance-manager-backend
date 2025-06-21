@@ -7,7 +7,9 @@ const { validateLoginData } = require("../utils/validations");
 authRouter.post("/login", async (req, res) => {
   try {
     validateLoginData(req);
-    const { email, name, accessToken, expiresIn } = req.body;
+    const { email, name, expiresIn } = req.body;
+    const { Authorization } = req.headers;
+    const accessToken = Authorization.split(" ")[1];
 
     res.cookie("token", accessToken, {
       expires: new Date(Date.now() + expiresIn * 1000),
