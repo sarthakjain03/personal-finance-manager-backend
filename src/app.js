@@ -12,6 +12,7 @@ const summaryRouter = require("./routes/summary");
 
 const app = express();
 
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -19,7 +20,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(cookieParser());
 
 app.use("/auth", authRouter);
 app.use("/summary", summaryRouter);

@@ -13,16 +13,22 @@ authRouter.post("/login", async (req, res) => {
 
     res.cookie("token", accessToken, {
       expires: new Date(Date.now() + expiresIn * 1000),
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
     });
     let userToken;
 
     const user = await User.findOne({ email });
+    let userData = user;
     if (!user) {
       const newUser = new User({
         name,
         email,
         profileImageUrl: profilePhotoUrl,
       });
+      userData = newUser;
+
       await newUser.save();
 
       userToken = newUser.generateJWT(expiresIn);
@@ -32,11 +38,17 @@ authRouter.post("/login", async (req, res) => {
 
     res.cookie("userToken", userToken, {
       expires: new Date(Date.now() + expiresIn * 1000),
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
     });
 
     res.send({
       success: true,
       message: "User Logged In Successfully",
+      data: {
+        currentBalance: userData.currentBalance,
+      },
     });
   } catch (error) {
     res.status(400).send({

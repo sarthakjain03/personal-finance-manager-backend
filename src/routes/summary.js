@@ -29,10 +29,14 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
           userId: user._id,
           date: { $gte: startOfLastMonth },
         },
+      },
+      {
         $project: {
           amount: 1,
           transactionType: 1,
-          isCurrentMonth: { $gte: ["$date", startOfCurrentMonth] },
+          isCurrentMonth: {
+            $gte: ["$date", startOfCurrentMonth],
+          },
           isLastMonth: {
             $and: [
               { $gte: ["$date", startOfLastMonth] },
@@ -40,6 +44,8 @@ summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
             ],
           },
         },
+      },
+      {
         $group: {
           _id: "$transactionType",
           currentMonth: {
