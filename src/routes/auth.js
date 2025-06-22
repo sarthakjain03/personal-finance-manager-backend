@@ -7,7 +7,7 @@ const { validateLoginData } = require("../utils/validations");
 authRouter.post("/login", async (req, res) => {
   try {
     validateLoginData(req);
-    const { email, name, expiresIn } = req.body;
+    const { email, name, expiresIn, profilePhotoUrl } = req.body;
     const { authorization } = req.headers;
     const accessToken = authorization.split(" ")[1];
 
@@ -18,7 +18,11 @@ authRouter.post("/login", async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      const newUser = new User({ name, email });
+      const newUser = new User({
+        name,
+        email,
+        profileImageUrl: profilePhotoUrl,
+      });
       await newUser.save();
 
       userToken = newUser.generateJWT(expiresIn);

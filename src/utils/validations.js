@@ -2,7 +2,7 @@ const validator = require("validator");
 const { TransactionTypes, Categories, Timelines } = require("./constants");
 
 const validateLoginData = (req) => {
-  const { email, name, expiresIn } = req.body;
+  const { email, name, expiresIn, profilePhotoUrl } = req.body;
   const { authorization } = req.headers;
   if (!authorization) {
     throw new Error("Authorization header is required");
@@ -13,8 +13,11 @@ const validateLoginData = (req) => {
   if (!accessToken) {
     throw new Error("Access Token is required");
   }
-  if (!email || !name || !accessToken || !expiresIn) {
+  if (!email || !name || !accessToken || !expiresIn || !profilePhotoUrl) {
     throw new Error("All fields are required");
+  }
+  if (!validator.isURL(profilePhotoUrl)) {
+    throw new Error("Invalid profile photo url");
   }
   if (!validator.isEmail(email)) {
     throw new Error("Invalid email format");
