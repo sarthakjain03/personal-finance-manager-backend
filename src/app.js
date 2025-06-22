@@ -27,6 +27,15 @@ app.use("/transaction", transactionRouter);
 app.use("/goal", goalRouter);
 app.use("/budget", budgetRouter);
 
+app.use((err, req, res, next) => {
+  console.info("Internal Server Error:", err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
+
 connectDB()
   .then(() => {
     console.log("Connected to database successfully!");
