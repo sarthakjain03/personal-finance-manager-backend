@@ -145,14 +145,18 @@ summaryRouter.get("/category-wise-expenses", userAuth, async (req, res) => {
           transactionType: "Expense",
           date: { $gte: startDate, $lt: endDate },
         },
+      },
+      {
         $group: {
           _id: "$category",
-          totalAmount: { $sum: "$amount" },
+          value: { $sum: "$amount" },
         },
+      },
+      {
         $project: {
           _id: 0,
-          category: "$_id",
-          totalAmount: 1,
+          name: "$_id",
+          value: 1,
         },
       },
     ]);

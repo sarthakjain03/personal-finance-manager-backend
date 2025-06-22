@@ -12,7 +12,7 @@ const getPercentageChange = (current, last) => {
 
   const change = current - last;
   const percentageChange = (change / last) * 100;
-  return percentageChange.toFixed(2);
+  return parseFloat(percentageChange.toFixed(2));
 };
 
 const getDateLabel = (fulldate) => {
