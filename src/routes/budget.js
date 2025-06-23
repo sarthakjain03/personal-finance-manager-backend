@@ -19,6 +19,8 @@ const updateTotalsAndSend = async (user, res, budget, successMessage) => {
     const totalAmounts = await Budget.aggregate([
       {
         $match: { userId: user._id },
+      },
+      {
         $group: {
           _id: null,
           totalBudget: { $sum: "$budgetAmount" },
@@ -28,12 +30,13 @@ const updateTotalsAndSend = async (user, res, budget, successMessage) => {
       },
     ]);
 
-    const percentageSpent =
-      totalAmounts[0].totalSpent / totalAmounts[0].totalBudget;
+    const percentageSpent = totalAmounts?.[0]?.totalSpent
+      ? totalAmounts[0]?.totalSpent / totalAmounts[0]?.totalBudget
+      : 0;
 
-    totalBudget = totalAmounts[0].totalBudget || 0;
-    totalSpent = totalAmounts[0].totalSpent || 0;
-    totalRemaining = totalAmounts[0].totalRemaining || 0;
+    totalBudget = totalAmounts?.[0]?.totalBudget || 0;
+    totalSpent = totalAmounts?.[0]?.totalSpent || 0;
+    totalRemaining = totalAmounts?.[0]?.totalRemaining || 0;
     totalSpentPercentage = percentageSpent * 100;
 
     return res.json({
@@ -96,6 +99,8 @@ budgetRouter.post("/new", userAuth, async (req, res) => {
           category,
           transactionType: "Expense",
         },
+      },
+      {
         $group: {
           _id: null,
           totalSpent: { $sum: "$amount" },
@@ -103,7 +108,7 @@ budgetRouter.post("/new", userAuth, async (req, res) => {
       },
     ]);
 
-    const spentAmount = userSpends[0].totalSpent || 0;
+    const spentAmount = userSpends?.[0]?.totalSpent || 0;
     const percentageSpent = parseFloat(
       ((spentAmount / budgetAmount) * 100).toFixed(2)
     );

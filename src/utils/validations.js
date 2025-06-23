@@ -207,7 +207,7 @@ const validateNewBudgetData = (req) => {
   if (!Categories.includes(category)) {
     throw new Error("Invalid Category");
   }
-  if (!validator.isNumeric(budgetAmount)) {
+  if (isNaN(budgetAmount)) {
     throw new Error("Budget Amount must be a number");
   }
   if (budgetAmount <= 100) {
@@ -224,7 +224,7 @@ const validateEditBudgetData = (req, oldBudget) => {
     throw new Error("Invalid Category");
   }
   if (budgetAmount !== undefined) {
-    if (!validator.isNumeric(budgetAmount)) {
+    if (isNaN(budgetAmount)) {
       throw new Error("Budget Amount must be a number");
     }
     if (budgetAmount <= 100) {
