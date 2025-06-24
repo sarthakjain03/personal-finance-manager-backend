@@ -213,6 +213,9 @@ const validateNewBudgetData = (req) => {
   if (budgetAmount <= 100) {
     throw new Error("Budget Amount must be greater than 100");
   }
+  if (budgetAmount > 1000000) {
+    throw new Error("Budget Amount must be less than 1000000");
+  }
 };
 
 const validateEditBudgetData = (req, oldBudget) => {
@@ -229,6 +232,9 @@ const validateEditBudgetData = (req, oldBudget) => {
     }
     if (budgetAmount <= 100) {
       throw new Error("Budget Amount must be greater than 100");
+    }
+    if (budgetAmount > 1000000) {
+      throw new Error("Budget Amount must be less than 1000000");
     }
     if (
       budgetAmount < oldBudget.budgetAmount &&

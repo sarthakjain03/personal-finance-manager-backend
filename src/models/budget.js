@@ -23,6 +23,7 @@ const budgetSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 100,
+      max: 1000000,
     },
     remainingAmount: {
       type: Number,
