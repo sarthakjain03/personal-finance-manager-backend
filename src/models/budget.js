@@ -35,7 +35,17 @@ const budgetSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+        delete ret.userId;
+      },
+    },
+  }
 );
 
 const Budget = mongoose.model("Budget", budgetSchema);
