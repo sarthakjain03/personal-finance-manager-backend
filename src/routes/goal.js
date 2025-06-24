@@ -57,6 +57,7 @@ goalRouter.post("/new", userAuth, async (req, res) => {
     res.json({
       success: true,
       message: "Goal added successfully",
+      goal: newGoal,
     });
   } catch (error) {
     res.status(400).json({
@@ -101,7 +102,7 @@ goalRouter.patch("/edit/:id", userAuth, async (req, res) => {
     res.json({
       success: true,
       message: "Goal updated successfully",
-      data: goal,
+      goal,
     });
   } catch (error) {
     res.status(400).json({
