@@ -3,7 +3,7 @@ const goalRouter = express.Router();
 
 const { userAuth } = require("../middlewares/auth");
 const {
-  validatePageAndLimit,
+  // validatePageAndLimit,
   validateNewGoalData,
   validateEditGoalData,
 } = require("../utils/validations");
@@ -11,17 +11,17 @@ const Goal = require("../models/goal");
 
 goalRouter.get("/all", userAuth, async (req, res) => {
   try {
-    validatePageAndLimit(req);
+    // validatePageAndLimit(req);
 
     const user = req.user;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    let limit = req.query.limit ? parseInt(req.query.limit) : 15;
-    limit = limit > 15 ? 15 : limit;
-    const offset = (page - 1) * limit;
+    // const page = req.query.page ? parseInt(req.query.page) : 1;
+    // let limit = req.query.limit ? parseInt(req.query.limit) : 15;
+    // limit = limit > 15 ? 15 : limit;
+    // const offset = (page - 1) * limit;
 
-    const userGoals = await Goal.find({ userId: user._id })
-      .skip(offset)
-      .limit(limit);
+    const userGoals = await Goal.find({ userId: user._id });
+    // .skip(offset)
+    // .limit(limit);
 
     res.json({
       success: true,
@@ -41,7 +41,14 @@ goalRouter.post("/new", userAuth, async (req, res) => {
     validateNewGoalData(req);
 
     const user = req.user;
-    const { title, description, category, targetAmount, deadline } = req.body;
+    const {
+      title,
+      description,
+      category,
+      targetAmount,
+      deadline,
+      currentAmount,
+    } = req.body;
 
     const newGoal = new Goal({
       userId: user._id,
@@ -49,6 +56,7 @@ goalRouter.post("/new", userAuth, async (req, res) => {
       description,
       category,
       targetAmount,
+      currentAmount,
       deadline,
     });
 
@@ -57,7 +65,7 @@ goalRouter.post("/new", userAuth, async (req, res) => {
     res.json({
       success: true,
       message: "Goal added successfully",
-      goal: newGoal,
+      data: newGoal,
     });
   } catch (error) {
     res.status(400).json({
@@ -102,7 +110,7 @@ goalRouter.patch("/edit/:id", userAuth, async (req, res) => {
     res.json({
       success: true,
       message: "Goal updated successfully",
-      goal,
+      data: goal,
     });
   } catch (error) {
     res.status(400).json({

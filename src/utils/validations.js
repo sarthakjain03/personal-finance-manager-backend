@@ -112,8 +112,22 @@ const validatePageAndLimit = (req) => {
 };
 
 const validateNewGoalData = (req) => {
-  const { title, description, category, targetAmount, deadline } = req.body;
-  if (!title || !description || !category || !targetAmount || !deadline) {
+  const {
+    title,
+    description,
+    category,
+    targetAmount,
+    deadline,
+    currentAmount,
+  } = req.body;
+  if (
+    !title ||
+    !description ||
+    !category ||
+    !targetAmount ||
+    !deadline ||
+    !currentAmount
+  ) {
     throw new Error("All fields are required");
   }
   if (title.length < 3 || title.length > 50) {
@@ -131,9 +145,15 @@ const validateNewGoalData = (req) => {
   if (targetAmount <= 0) {
     throw new Error("Target Amount must be greater than 0");
   }
+  if (!validator.isNumeric(currentAmount))
+    throw new Error("Current Amount must be a number");
+  if (currentAmount <= 0)
+    throw new Error("Current Amount must be greater than 0");
   if (!validator.isDate(deadline)) {
     throw new Error("Deadline must be a date");
   }
+  if (currentAmount > targetAmount)
+    throw new Error("Current Amount must be less than Target Amount");
   if (deadline <= new Date()) {
     throw new Error("Deadline must be greater than current date");
   }
