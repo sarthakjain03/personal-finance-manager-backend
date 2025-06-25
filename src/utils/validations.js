@@ -139,23 +139,25 @@ const validateNewGoalData = (req) => {
   if (category.length < 2 || category.length > 30) {
     throw new Error("Category must be between 2 and 30 characters");
   }
-  if (!validator.isNumeric(targetAmount)) {
+  if (isNaN(targetAmount)) {
     throw new Error("Target Amount must be a number");
   }
-  if (targetAmount <= 0) {
-    throw new Error("Target Amount must be greater than 0");
+  if (targetAmount <= 100) {
+    throw new Error("Target Amount must be greater than 100");
   }
-  if (!validator.isNumeric(currentAmount))
-    throw new Error("Current Amount must be a number");
+  if (isNaN(currentAmount)) throw new Error("Current Amount must be a number");
   if (currentAmount <= 0)
     throw new Error("Current Amount must be greater than 0");
-  if (!validator.isDate(deadline)) {
-    throw new Error("Deadline must be a date");
-  }
   if (currentAmount > targetAmount)
     throw new Error("Current Amount must be less than Target Amount");
-  if (deadline <= new Date()) {
-    throw new Error("Deadline must be greater than current date");
+
+  const parsed = new Date(deadline);
+  if (isNaN(parsed.getTime())) {
+    throw new Error("Deadline must be a valid date");
+  }
+
+  if (parsed <= new Date()) {
+    throw new Error("Deadline must be greater than the current date");
   }
 };
 
@@ -189,7 +191,7 @@ const validateEditGoalData = (req, oldGoal) => {
     throw new Error("Category must be between 2 and 30 characters");
   }
   if (currentAmount !== undefined) {
-    if (!validator.isNumeric(currentAmount))
+    if (isNaN(currentAmount))
       throw new Error("Current Amount must be a number");
     if (currentAmount <= 0)
       throw new Error("Current Amount must be greater than 0");
@@ -200,10 +202,9 @@ const validateEditGoalData = (req, oldGoal) => {
       throw new Error("Current Amount must be less than Target Amount");
   }
   if (targetAmount !== undefined) {
-    if (!validator.isNumeric(targetAmount))
-      throw new Error("Target Amount must be a number");
-    if (targetAmount <= 0)
-      throw new Error("Target Amount must be greater than 0");
+    if (isNaN(targetAmount)) throw new Error("Target Amount must be a number");
+    if (targetAmount <= 100)
+      throw new Error("Target Amount must be greater than 100");
     if (
       (currentAmount !== undefined && targetAmount < currentAmount) ||
       targetAmount < oldGoal.currentAmount
@@ -213,9 +214,15 @@ const validateEditGoalData = (req, oldGoal) => {
       );
   }
   if (deadline !== undefined) {
-    if (!validator.isDate(deadline)) throw new Error("Deadline must be a date");
-    if (deadline <= new Date())
-      throw new Error("Deadline must be greater than current date");
+    const parsed = new Date(deadline);
+
+    if (isNaN(parsed.getTime())) {
+      throw new Error("Deadline must be a valid date");
+    }
+
+    if (parsed <= new Date()) {
+      throw new Error("Deadline must be greater than the current date");
+    }
   }
 };
 
