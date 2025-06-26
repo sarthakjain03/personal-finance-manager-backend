@@ -51,8 +51,9 @@ const validateNewTransactionData = (req) => {
   if (transactionType !== "Income" && transactionType !== "Expense") {
     throw new Error("Invalid Transaction Type");
   }
-  if (!validator.isDate(date)) {
-    throw new Error("Date must be a date");
+  const parsed = new Date(date);
+  if (isNaN(parsed.getTime())) {
+    throw new Error("Date must be a valid date");
   }
 };
 
@@ -94,8 +95,11 @@ const validateEditTransactionData = (req, oldTransaction) => {
   ) {
     throw new Error("Invalid Transaction Type");
   }
-  if (date !== undefined && !validator.isDate(date)) {
-    throw new Error("Date must be a date");
+  if (date !== undefined) {
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      throw new Error("Date must be a valid date");
+    }
   }
 };
 
