@@ -57,7 +57,6 @@ transactionRouter.post("/all", userAuth, async (req, res) => {
         : true;
       const matchesSearch = search
         ? [
-            transaction.title,
             transaction.description,
             transaction.category,
             transaction.transactionType,
@@ -134,6 +133,7 @@ transactionRouter.post("/new", userAuth, async (req, res) => {
       message: "Transaction added successfully",
       data: {
         currentBalance: updatedUser.currentBalance,
+        transaction: userNewTransaction,
       },
     });
   } catch (error) {
@@ -213,6 +213,7 @@ transactionRouter.patch("/edit/:id", userAuth, async (req, res) => {
       message: "Transaction updated successfully",
       data: {
         currentBalance: updatedUser.currentBalance,
+        transaction,
       },
     });
   } catch (error) {
