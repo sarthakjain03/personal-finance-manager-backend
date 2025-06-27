@@ -8,7 +8,7 @@ const User = require("../models/user");
 const {
   validateNewTransactionData,
   validateEditTransactionData,
-  validatePageAndLimit,
+  validateGetTransactionsData,
 } = require("../utils/validations");
 
 const findAndUpdateBudget = async (user, category, amount) => {
@@ -28,24 +28,55 @@ const findAndUpdateBudget = async (user, category, amount) => {
   }
 };
 
-transactionRouter.get("/all", userAuth, async (req, res) => {
+transactionRouter.post("/all", userAuth, async (req, res) => {
   try {
-    validatePageAndLimit(req);
+    validateGetTransactionsData(req);
 
     const user = req.user;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    let limit = req.query.limit ? parseInt(req.query.limit) : 20;
+    const page = req.body.page ? parseInt(req.body.page) : 1;
+    let limit = req.body.limit ? parseInt(req.body.limit) : 20;
     limit = limit > 20 ? 20 : limit;
     const offset = (page - 1) * limit;
+
+    const { category, type, fromDate, toDate, search } = req.body;
 
     const userTransactions = await Transaction.find({ userId: user._id })
       .skip(offset)
       .limit(limit);
 
+    const filteredTransactions = userTransactions.filter((transaction) => {
+      const matchesCategory = category
+        ? transaction.category === category
+        : true;
+      const matchesType = type ? transaction.transactionType === type : true;
+      const matchesFromDate = fromDate
+        ? new Date(transaction.date) >= new Date(fromDate)
+        : true;
+      const matchesToDate = toDate
+        ? new Date(transaction.date) <= new Date(toDate)
+        : true;
+      const matchesSearch = search
+        ? [
+            transaction.title,
+            transaction.description,
+            transaction.category,
+            transaction.transactionType,
+          ].some((field) => field?.toLowerCase().includes(search.toLowerCase()))
+        : true;
+
+      return (
+        matchesCategory &&
+        matchesType &&
+        matchesFromDate &&
+        matchesToDate &&
+        matchesSearch
+      );
+    });
+
     res.json({
       success: true,
       message: "Transactions fetched successfully",
-      data: userTransactions,
+      data: filteredTransactions,
     });
   } catch (error) {
     res.status(400).send({

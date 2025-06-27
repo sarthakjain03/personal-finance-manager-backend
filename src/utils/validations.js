@@ -103,15 +103,21 @@ const validateEditTransactionData = (req, oldTransaction) => {
   }
 };
 
-const validatePageAndLimit = (req) => {
-  if (!req.query.page || !req.query.limit) {
-    throw new Error("Page and Limit are required as queries");
+const validateGetTransactionsData = (req) => {
+  if (!req.body.page || !req.body.limit) {
+    throw new Error("Page and Limit are required");
   }
-  if (isNaN(parseInt(req.query.page)) || isNaN(parseInt(req.query.limit))) {
+  if (isNaN(parseInt(req.body.page)) || isNaN(parseInt(req.body.limit))) {
     throw new Error("Page and Limit must be numbers");
   }
-  if (parseInt(req.query.page) <= 0 || parseInt(req.query.limit) <= 0) {
+  if (parseInt(req.body.page) <= 0 || parseInt(req.body.limit) <= 0) {
     throw new Error("Page and Limit must be greater than 0");
+  }
+  if (req.body.category && !Categories.includes(req.body.category)) {
+    throw new Error("Invalid Category");
+  }
+  if (req.body.type && !TransactionTypes.includes(req.body.type)) {
+    throw new Error("Invalid Transaction Type");
   }
 };
 
@@ -308,7 +314,7 @@ module.exports = {
   validateLoginData,
   validateNewTransactionData,
   validateEditTransactionData,
-  validatePageAndLimit,
+  validateGetTransactionsData,
   validateNewGoalData,
   validateEditGoalData,
   validateNewBudgetData,
