@@ -26,6 +26,22 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    currencyFormat: {
+      type: String,
+      default: "INR",
+      enum: [
+        "USD",
+        "EUR",
+        "GBP",
+        "JPY",
+        "CNY",
+        "CAD",
+        "AUD",
+        "CHF",
+        "INR",
+        "KRW",
+      ],
+    },
   },
   {
     timestamps: true,

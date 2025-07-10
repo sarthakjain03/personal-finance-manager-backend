@@ -48,6 +48,7 @@ authRouter.post("/login", async (req, res) => {
       message: "User Logged In Successfully",
       data: {
         currentBalance: userData.currentBalance,
+        currencyFormat: userData.currencyFormat,
       },
     });
   } catch (error) {

@@ -27,6 +27,25 @@ const validateLoginData = (req) => {
   }
 };
 
+const validateNewCurrencyFormat = (req) => {
+  const { newCurrencyFormat } = req.body;
+  const currencyCodes = [
+    "USD",
+    "EUR",
+    "GBP",
+    "JPY",
+    "CNY",
+    "CAD",
+    "AUD",
+    "CHF",
+    "INR",
+    "KRW",
+  ];
+  if (!currencyCodes.includes(newCurrencyFormat)) {
+    throw new Error("Invalid currency format");
+  }
+};
+
 const validateNewTransactionData = (req) => {
   const { description, category, transactionType, amount, date } = req.body;
   const user = req.user;
@@ -327,4 +346,5 @@ module.exports = {
   validateEditBudgetData,
   validateTrendData,
   validateCategoryWiseExpensesData,
+  validateNewCurrencyFormat,
 };

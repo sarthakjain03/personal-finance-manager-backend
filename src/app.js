@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const connectDB = require("./config/database");
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
 const transactionRouter = require("./routes/transaction");
 const goalRouter = require("./routes/goal");
 const budgetRouter = require("./routes/budget");
@@ -22,6 +23,7 @@ app.use(
 app.use(express.json());
 
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
 app.use("/summary", summaryRouter);
 app.use("/transaction", transactionRouter);
 app.use("/goal", goalRouter);
