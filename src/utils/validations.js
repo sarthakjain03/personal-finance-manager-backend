@@ -33,7 +33,10 @@ const validateNewTransactionData = (req) => {
   if (!description || !category || !transactionType || !amount || !date) {
     throw new Error("All fields are required");
   }
-  if (!validator.isNumeric(amount)) {
+  if (description.length > 30) {
+    throw new Error("Description must be less than 30 characters");
+  }
+  if (isNaN(amount)) {
     throw new Error("Amount must be a number");
   }
   if (amount <= 0) {
@@ -62,6 +65,9 @@ const validateEditTransactionData = (req, oldTransaction) => {
   const user = req.user;
   if (!description && !category && !transactionType && !amount && !date) {
     throw new Error("Nothing to Update");
+  }
+  if (description !== undefined && description.length > 30) {
+    throw new Error("Description must be less than 30 characters");
   }
   if (category !== undefined && !Categories.includes(category)) {
     throw new Error("Invalid Category");
@@ -140,8 +146,8 @@ const validateNewGoalData = (req) => {
   ) {
     throw new Error("All fields are required");
   }
-  if (title.length < 3 || title.length > 50) {
-    throw new Error("Title must be between 3 and 50 characters");
+  if (title.length < 3 || title.length > 30) {
+    throw new Error("Title must be between 3 and 30 characters");
   }
   if (description.length > 250) {
     throw new Error("Description must be less than 250 characters");
@@ -191,8 +197,8 @@ const validateEditGoalData = (req, oldGoal) => {
   ) {
     throw new Error("Nothing to Update");
   }
-  if ((title !== undefined && title.length < 3) || title.length > 50) {
-    throw new Error("Title must be between 3 and 50 characters");
+  if ((title !== undefined && title.length < 3) || title.length > 30) {
+    throw new Error("Title must be between 3 and 30 characters");
   }
   if (description !== undefined && description.length > 250) {
     throw new Error("Description must be less than 250 characters");
