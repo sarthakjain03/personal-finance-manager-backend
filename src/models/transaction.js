@@ -13,7 +13,7 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      maxLength: 30,
+      maxLength: 50,
     },
     category: {
       type: String,
@@ -30,6 +30,7 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
+      max: 1000000,
     },
     date: {
       type: Date,

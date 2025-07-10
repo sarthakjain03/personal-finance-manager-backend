@@ -12,7 +12,7 @@ const goalSchema = new mongoose.Schema(
       required: true,
       trim: true,
       minLength: 3,
-      maxLength: 30,
+      maxLength: 50,
     },
     description: {
       type: String,
