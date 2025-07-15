@@ -1,4 +1,4 @@
-const Categories = [
+const ExpenseCategories = [
   "Food & Dining",
   "Travel",
   "Entertainment",
@@ -8,6 +8,14 @@ const Categories = [
   "Investments",
   "Personal Care",
   "Housing",
+];
+
+const IncomeCategories = [
+  "Investment Return",
+  "Business",
+  "Real Estate",
+  "Side Hustle",
+  "Salary",
 ];
 
 const TransactionTypes = ["Income", "Expense"];
@@ -29,4 +37,10 @@ const Months = [
 
 const Timelines = ["month", "year"];
 
-module.exports = { Categories, TransactionTypes, Months, Timelines };
+module.exports = {
+  ExpenseCategories,
+  IncomeCategories,
+  TransactionTypes,
+  Months,
+  Timelines,
+};

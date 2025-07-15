@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Categories } = require("../utils/constants");
+const { ExpenseCategories } = require("../utils/constants");
 
 const budgetSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const budgetSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: Categories,
+      enum: ExpenseCategories,
       required: true,
     },
     spentAmount: {

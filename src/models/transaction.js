@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
-const { TransactionTypes, Categories } = require("../utils/constants");
+const {
+  TransactionTypes,
+  ExpenseCategories,
+  IncomeCategories,
+} = require("../utils/constants");
+
+const AllCategories = [...ExpenseCategories, ...IncomeCategories];
 
 const transactionSchema = new mongoose.Schema(
   {
@@ -19,7 +25,7 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      enum: Categories,
+      enum: AllCategories,
     },
     transactionType: {
       type: String,

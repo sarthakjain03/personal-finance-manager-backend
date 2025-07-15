@@ -1,5 +1,10 @@
 const validator = require("validator");
-const { TransactionTypes, Categories, Timelines } = require("./constants");
+const {
+  TransactionTypes,
+  ExpenseCategories,
+  Timelines,
+  IncomeCategories,
+} = require("./constants");
 
 const validateLoginData = (req) => {
   const { email, name, expiresIn, profilePhotoUrl } = req.body;
@@ -61,17 +66,17 @@ const validateNewTransactionData = (req) => {
   if (amount <= 0 || amount > 1000000) {
     throw new Error("Amount must be greater than 0 and less than 1000000");
   }
-  if (!Categories.includes(category)) {
-    throw new Error("Invalid Category");
-  }
   if (!TransactionTypes.includes(transactionType)) {
     throw new Error("Invalid Transaction Type");
   }
+  if (
+    (transactionType === "Income" && !IncomeCategories.includes(category)) ||
+    (transactionType === "Expense" && !ExpenseCategories.includes(category))
+  ) {
+    throw new Error("Invalid Category");
+  }
   if (transactionType === "Expense" && user.currentBalance < amount) {
     throw new Error("Insufficient Balance");
-  }
-  if (transactionType !== "Income" && transactionType !== "Expense") {
-    throw new Error("Invalid Transaction Type");
   }
   const parsed = new Date(date);
   if (isNaN(parsed.getTime())) {
@@ -88,14 +93,26 @@ const validateEditTransactionData = (req, oldTransaction) => {
   if (description !== undefined && description.length > 50) {
     throw new Error("Description must be less than 50 characters");
   }
-  if (category !== undefined && !Categories.includes(category)) {
-    throw new Error("Invalid Category");
-  }
   if (
     transactionType !== undefined &&
     !TransactionTypes.includes(transactionType)
   ) {
     throw new Error("Invalid Transaction Type");
+  }
+  if (category !== undefined) {
+    if (
+      (transactionType === "Income" && !IncomeCategories.includes(category)) ||
+      (transactionType === "Expense" &&
+        !ExpenseCategories.includes(category)) ||
+      (transactionType === undefined &&
+        oldTransaction.transactionType === "Income" &&
+        !IncomeCategories.includes(category)) ||
+      (transactionType === undefined &&
+        oldTransaction.transactionType === "Expense" &&
+        !ExpenseCategories.includes(category))
+    ) {
+      throw new Error("Invalid Category");
+    }
   }
   if (amount !== undefined) {
     if (!validator.isNumeric(amount)) {
@@ -112,13 +129,6 @@ const validateEditTransactionData = (req, oldTransaction) => {
     ) {
       throw new Error("Insufficient Balance");
     }
-  }
-  if (
-    transactionType !== undefined &&
-    transactionType !== "Income" &&
-    transactionType !== "Expense"
-  ) {
-    throw new Error("Invalid Transaction Type");
   }
   if (date !== undefined) {
     const parsed = new Date(date);
@@ -138,7 +148,10 @@ const validateGetTransactionsData = (req) => {
   if (parseInt(req.body.page) <= 0 || parseInt(req.body.limit) <= 0) {
     throw new Error("Page and Limit must be greater than 0");
   }
-  if (req.body.category && !Categories.includes(req.body.category)) {
+  if (
+    req.body.category &&
+    ![...ExpenseCategories, ...IncomeCategories].includes(req.body.category)
+  ) {
     throw new Error("Invalid Category");
   }
   if (req.body.type && !TransactionTypes.includes(req.body.type)) {
@@ -266,7 +279,7 @@ const validateNewBudgetData = (req) => {
   if (!category || !budgetAmount) {
     throw new Error("All fields are required");
   }
-  if (!Categories.includes(category)) {
+  if (!ExpenseCategories.includes(category)) {
     throw new Error("Invalid Category");
   }
   if (isNaN(budgetAmount)) {
@@ -285,7 +298,7 @@ const validateEditBudgetData = (req, oldBudget) => {
   if (!category && !budgetAmount) {
     throw new Error("Nothing to Update");
   }
-  if (category !== undefined && !Categories.includes(category)) {
+  if (category !== undefined && !ExpenseCategories.includes(category)) {
     throw new Error("Invalid Category");
   }
   if (budgetAmount !== undefined) {
