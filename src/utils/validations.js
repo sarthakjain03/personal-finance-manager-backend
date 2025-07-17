@@ -115,7 +115,7 @@ const validateEditTransactionData = (req, oldTransaction) => {
     }
   }
   if (amount !== undefined) {
-    if (!validator.isNumeric(amount)) {
+    if (isNaN(amount)) {
       throw new Error("Amount must be a number");
     }
     if (amount <= 0 || amount > 1000000) {
