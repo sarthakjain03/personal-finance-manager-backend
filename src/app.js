@@ -16,7 +16,7 @@ const app = express();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://finsphere-frontend.vercel.app",
+    origin: "https://finsphere-mu.vercel.app",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
