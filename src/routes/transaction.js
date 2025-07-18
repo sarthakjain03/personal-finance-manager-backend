@@ -1,15 +1,15 @@
 const express = require("express");
 const transactionRouter = express.Router();
 
-const { userAuth } = require("../src/middlewares/auth");
-const Transaction = require("../src/models/transaction");
-const Budget = require("../src/models/budget");
-const User = require("../src/models/user");
+const { userAuth } = require("../middlewares/auth");
+const Transaction = require("../models/transaction");
+const Budget = require("../models/budget");
+const User = require("../models/user");
 const {
   validateNewTransactionData,
   validateEditTransactionData,
   validateGetTransactionsData,
-} = require("../src/utils/validations");
+} = require("../utils/validations");
 
 const findAndUpdateBudget = async (user, category, amount) => {
   const budget = await Budget.findOne({ userId: user._id, category });

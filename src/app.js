@@ -2,15 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-// const serverless = require("serverless-http");
 
-const connectDB = require("../config/database");
-const authRouter = require("../routes/auth");
-const userRouter = require("../routes/user");
-const transactionRouter = require("../routes/transaction");
-const goalRouter = require("../routes/goal");
-const budgetRouter = require("../routes/budget");
-const summaryRouter = require("../routes/summary");
+const connectDB = require("./config/database");
+const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
+const transactionRouter = require("./routes/transaction");
+const goalRouter = require("./routes/goal");
+const budgetRouter = require("./routes/budget");
+const summaryRouter = require("./routes/summary");
 
 const app = express();
 
@@ -23,7 +22,6 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
-app.options("*", cors());
 app.use(express.json());
 
 app.use("/auth", authRouter);
@@ -53,6 +51,3 @@ connectDB()
   .catch((error) => {
     console.error("Error connecting to database", error);
   });
-
-// module.exports = app;
-// module.exports.handler = serverless(app);
