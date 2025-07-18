@@ -14,7 +14,7 @@ authRouter.post("/login", async (req, res) => {
     res.cookie("token", accessToken, {
       expires: new Date(Date.now() + expiresIn * 1000),
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true,
     });
     let userToken;
@@ -39,7 +39,7 @@ authRouter.post("/login", async (req, res) => {
     res.cookie("userToken", userToken, {
       expires: new Date(Date.now() + expiresIn * 1000),
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true,
     });
 
