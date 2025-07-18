@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const serverless = require("serverless-http");
 
 const connectDB = require("./config/database");
 const authRouter = require("./routes/auth");
@@ -52,3 +53,6 @@ connectDB()
   .catch((error) => {
     console.error("Error connecting to database", error);
   });
+
+module.exports = app;
+module.exports.handler = serverless(app);
