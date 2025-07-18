@@ -4,13 +4,13 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const serverless = require("serverless-http");
 
-const connectDB = require("./config/database");
-const authRouter = require("./routes/auth");
-const userRouter = require("./routes/user");
-const transactionRouter = require("./routes/transaction");
-const goalRouter = require("./routes/goal");
-const budgetRouter = require("./routes/budget");
-const summaryRouter = require("./routes/summary");
+const connectDB = require("../config/database");
+const authRouter = require("../routes/auth");
+const userRouter = require("../routes/user");
+const transactionRouter = require("../routes/transaction");
+const goalRouter = require("../routes/goal");
+const budgetRouter = require("../routes/budget");
+const summaryRouter = require("../routes/summary");
 
 const app = express();
 
