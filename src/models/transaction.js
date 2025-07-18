@@ -39,7 +39,7 @@ const transactionSchema = new mongoose.Schema(
       max: 1000000,
     },
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
   },
