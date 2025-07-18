@@ -18,6 +18,8 @@ app.use(
   cors({
     origin: "https://finsphere-frontend.vercel.app",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
 app.use(express.json());
