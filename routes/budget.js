@@ -6,7 +6,7 @@ const Budget = require("../models/budget");
 const {
   validateNewBudgetData,
   validateEditBudgetData,
-} = require("../../utils/validations");
+} = require("../utils/validations");
 const Transaction = require("../models/transaction");
 
 const updateTotalsAndSend = async (user, res, budget, successMessage) => {

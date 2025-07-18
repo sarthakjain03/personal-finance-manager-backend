@@ -4,15 +4,12 @@ const summaryRouter = express.Router();
 const { userAuth } = require("../middlewares/auth");
 const Transaction = require("../models/transaction");
 const Budget = require("../models/budget");
-const {
-  getPercentageChange,
-  getTrendsChartData,
-} = require("../../utils/helpers");
+const { getPercentageChange, getTrendsChartData } = require("../utils/helpers");
 const {
   validateTrendData,
   validateCategoryWiseExpensesData,
-} = require("../../utils/validations");
-const { Timelines } = require("../../utils/constants");
+} = require("../utils/validations");
+const { Timelines } = require("../utils/constants");
 
 summaryRouter.get("/monthly-cards", userAuth, async (req, res) => {
   try {
