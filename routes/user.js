@@ -1,7 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 
-const { userAuth } = require("../middlewares/auth");
+const { userAuth } = require("../src/middlewares/auth");
 const User = require("../models/user");
 const { validateNewCurrencyFormat } = require("../utils/validations");
 

@@ -6,7 +6,7 @@ const {
   // validatePageAndLimit,
   validateNewGoalData,
   validateEditGoalData,
-} = require("../utils/validations");
+} = require("../../utils/validations");
 const Goal = require("../models/goal");
 
 goalRouter.get("/all", userAuth, async (req, res) => {
