@@ -54,7 +54,14 @@ const validateNewCurrencyFormat = (req) => {
 const validateNewTransactionData = (req) => {
   const { description, category, transactionType, amount, date } = req.body;
   const user = req.user;
-  if (!description || !category || !transactionType || !amount || !date) {
+  if (
+    !description ||
+    !category ||
+    !transactionType ||
+    amount === undefined ||
+    amount === null ||
+    !date
+  ) {
     throw new Error("All fields are required");
   }
   if (description.length > 50) {
@@ -174,7 +181,8 @@ const validateNewGoalData = (req) => {
     !category ||
     !targetAmount ||
     !deadline ||
-    !currentAmount
+    currentAmount === undefined ||
+    currentAmount === null
   ) {
     throw new Error("All fields are required");
   }
@@ -276,7 +284,7 @@ const validateEditGoalData = (req, oldGoal) => {
 
 const validateNewBudgetData = (req) => {
   const { category, budgetAmount } = req.body;
-  if (!category || !budgetAmount) {
+  if (!category || budgetAmount === undefined || budgetAmount === null) {
     throw new Error("All fields are required");
   }
   if (!ExpenseCategories.includes(category)) {
