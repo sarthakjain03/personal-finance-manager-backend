@@ -202,8 +202,7 @@ const validateNewGoalData = (req) => {
     throw new Error("Target Amount must be greater than 100");
   }
   if (isNaN(currentAmount)) throw new Error("Current Amount must be a number");
-  if (currentAmount <= 0)
-    throw new Error("Current Amount must be greater than 0");
+  if (currentAmount < 0) throw new Error("Current Amount must not be negative");
   if (currentAmount > targetAmount)
     throw new Error("Current Amount must be less than Target Amount");
 
@@ -249,8 +248,8 @@ const validateEditGoalData = (req, oldGoal) => {
   if (currentAmount !== undefined) {
     if (isNaN(currentAmount))
       throw new Error("Current Amount must be a number");
-    if (currentAmount <= 0)
-      throw new Error("Current Amount must be greater than 0");
+    if (currentAmount < 0)
+      throw new Error("Current Amount must not be negative");
     if (
       (targetAmount !== undefined && currentAmount > targetAmount) ||
       currentAmount > oldGoal.targetAmount
@@ -293,8 +292,8 @@ const validateNewBudgetData = (req) => {
   if (isNaN(budgetAmount)) {
     throw new Error("Budget Amount must be a number");
   }
-  if (budgetAmount <= 100) {
-    throw new Error("Budget Amount must be greater than 100");
+  if (budgetAmount < 100) {
+    throw new Error("Minimum Budget Amount is 100");
   }
   if (budgetAmount > 1000000) {
     throw new Error("Budget Amount must be less than 1000000");
@@ -313,8 +312,8 @@ const validateEditBudgetData = (req, oldBudget) => {
     if (isNaN(budgetAmount)) {
       throw new Error("Budget Amount must be a number");
     }
-    if (budgetAmount <= 100) {
-      throw new Error("Budget Amount must be greater than 100");
+    if (budgetAmount < 100) {
+      throw new Error("Minimum Budget Amount is 100");
     }
     if (budgetAmount > 1000000) {
       throw new Error("Budget Amount must be less than 1000000");
